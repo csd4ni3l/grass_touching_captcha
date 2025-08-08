@@ -71,7 +71,7 @@ def upload():
     print(request.url_root.rstrip('/') + url_for('uploads', filename=f"{image_uuid}.{image_type}"))
 
     grass_touching_similarity = get_grass_touching_similarity(request.url_root.rstrip('/') + url_for('uploads', filename=f"{image_uuid}.{image_type}"))
-    if not grass_touching_similarity >= 0.8:
+    if not grass_touching_similarity >= 0.675:
         return Response(f"Image not touching grass. Cosine similarity: {grass_touching_similarity}", 401)
 
     return Response(f"/uploads/{image_uuid}.{image_type}", 200)
