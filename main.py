@@ -96,4 +96,4 @@ def logout():
 def unauthorized_handler():
     return redirect("/login")
 
-app.run(debug=True)
+app.run(debug=True, port=os.environ.get("PORT"), host=os.environ.get("HOST", "0.0.0.0"))
