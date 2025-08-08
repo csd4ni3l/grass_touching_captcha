@@ -47,7 +47,7 @@ def register():
 
         return f"Username: {username}\nPassword: {password}"
 
-def resize_image_file(path, max_side=384, fmt="JPEG"):
+def resize_image_file(path, max_side=256, fmt="JPEG"):
     img = Image.open(path)
     scale = max_side / max(img.size)
     if scale < 1:
