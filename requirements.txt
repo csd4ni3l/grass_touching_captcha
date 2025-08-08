@@ -29,6 +29,8 @@ markupsafe==3.0.2
     #   werkzeug
 numpy==2.3.2
     # via grass-touching-captcha (pyproject.toml)
+pillow==11.3.0
+    # via grass-touching-captcha (pyproject.toml)
 python-dotenv==1.1.1
     # via dotenv
 requests==2.32.4
