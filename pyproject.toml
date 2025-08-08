@@ -9,5 +9,6 @@ dependencies = [
     "flask>=3.1.1",
     "flask-login>=0.6.3",
     "numpy>=2.3.2",
+    "pillow>=11.3.0",
     "requests>=2.32.4",
 ]

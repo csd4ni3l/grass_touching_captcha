@@ -1,7 +1,8 @@
 from flask import Flask, redirect, url_for, render_template, request, Response, send_from_directory
 from dotenv import load_dotenv
-from constants import RICKROLL_LINK, UPLOAD_DIR
+from constants import RICKROLL_LINK, UPLOAD_DIR, MINIMUM_COSINE_SIMILARITY
 from jina import get_grass_touching_similarity
+from PIL import Image
 
 import os, flask_login, uuid, base64
 
@@ -46,6 +47,13 @@ def register():
 
         return f"Username: {username}\nPassword: {password}"
 
+def resize_image_file(input_path, output_path, max_side=384, fmt="JPEG"):
+    img = Image.open(input_path)
+    scale = max_side / max(img.size)
+    if scale < 1:
+        img = img.resize((int(img.width * scale), int(img.height * scale)), Image.LANCZOS)
+    img.save(output_path, format=fmt)
+
 @app.route("/upload", methods=["POST"])
 def upload():
     try:
@@ -64,12 +72,14 @@ def upload():
         with open(f"{UPLOAD_DIR}/{image_uuid}.{image_type}", "wb") as file:
             file.write(base64.b64decode(image_data))
 
+        resize_image_file(f"{UPLOAD_DIR}/{image_uuid}.{image_type}", fmt="JPEG" if image_type == "jpeg" else "png")
+
     except:
         import traceback; traceback.print_exc()
         return Response("Unknown error", 400)
     
     grass_touching_similarity = get_grass_touching_similarity(request.url_root.rstrip('/').replace("http://", "https://") + url_for('uploads', filename=f"{image_uuid}.{image_type}"))
-    if not grass_touching_similarity >= 0.675:
+    if not grass_touching_similarity >= MINIMUM_COSINE_SIMILARITY:
         return Response(f"Image not touching grass. Cosine similarity: {grass_touching_similarity}", 401)
 
     return Response(f"/uploads/{image_uuid}.{image_type}", 200)
