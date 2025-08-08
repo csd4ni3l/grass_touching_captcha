@@ -14,6 +14,8 @@ app.secret_key = os.environ["FLASK_SECRET_KEY"]
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
+os.makedirs("uploads", exist_ok=True)
+
 users = {}
 
 class User(flask_login.UserMixin):
