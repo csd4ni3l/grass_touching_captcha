@@ -14,7 +14,8 @@ def get_embedding(input: list):
     headers["Authorization"] = f"Bearer {os.environ['JINA_TOKEN']}"
 
     data = {
-        "model": "jina-clip-v2",
+        "model": "jina-embeddings-v4",
+        "task": "text-matching",
         "input": input
     }
 
@@ -23,7 +24,7 @@ def get_embedding(input: list):
     return [jina_object["embedding"] for jina_object in response.json()["data"]]
 
 def get_grass_touching_similarity(image_url):
-    grass_image_embedding, grass_word_embedding = get_embedding([image_url, "hand touching grass"])
+    grass_image_embedding, grass_word_embedding = get_embedding([{"image": image_url}, {"text": "hand touching grass"}])
 
     grass_image_embedding = np.array(grass_image_embedding)
     grass_word_embedding = np.array(grass_word_embedding)
