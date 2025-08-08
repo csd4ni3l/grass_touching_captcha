@@ -6,6 +6,6 @@ JINA_HEADERS = {
 }
 RICKROLL_LINK = "https://www.youtube.com/watch?v=xvFZjo5PgG0"
 UPLOAD_DIR = "uploads"
-MINIMUM_COSINE_SIMILARITY = 0.75
+MINIMUM_COSINE_SIMILARITY = 0.7
 
 UPLOAD_DIR = os.path.join(os.getcwd(), UPLOAD_DIR)
