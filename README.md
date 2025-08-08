@@ -1,0 +1,1 @@
+A captcha/login page which only allows you to register if you post an image of you touching grass 
