@@ -67,10 +67,8 @@ def upload():
     except:
         import traceback; traceback.print_exc()
         return Response("Unknown error", 400)
-
-    print(request.url_root.rstrip('/') + url_for('uploads', filename=f"{image_uuid}.{image_type}"))
-
-    grass_touching_similarity = get_grass_touching_similarity(request.url_root.rstrip('/') + url_for('uploads', filename=f"{image_uuid}.{image_type}"))
+    
+    grass_touching_similarity = get_grass_touching_similarity(request.url_root.rstrip('/').replace("http://", "https://") + url_for('uploads', filename=f"{image_uuid}.{image_type}"))
     if not grass_touching_similarity >= 0.675:
         return Response(f"Image not touching grass. Cosine similarity: {grass_touching_similarity}", 401)
 
