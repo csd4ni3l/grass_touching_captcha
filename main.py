@@ -44,7 +44,7 @@ def register():
     elif request.method == "POST":
         username, password = request.form.get("username"), request.form.get("password")
 
-        return "a"
+        return f"Username: {username}\nPassword: {password}"
 
 @app.route("/upload", methods=["POST"])
 def upload():

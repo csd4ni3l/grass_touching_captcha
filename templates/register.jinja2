@@ -42,6 +42,13 @@ file_input.addEventListener("change", function () {
         document.getElementById("grass-touching-form").innerHTML += `<img class="preview-img" src="${image_url}"></img>`;
     }
 
+    function upload_error(error_message) {
+        console.error(error_message)
+        file_input.value = ''
+        document.getElementById("submit").innerHTML = "Submit"
+        document.getElementById("grass-touching-form").innerHTML += `<div class="text-danger">${error_message}</div>`;
+    }
+
     function upload_file(file_type, file_content) {
         fetch('{{ url_for("upload") }}', {
                 method: "POST",
@@ -54,9 +61,7 @@ file_input.addEventListener("change", function () {
             if (response.status == 401) {
                 response.text().then(text => {
                         if (text) {
-                            console.error(text);
-                            document.getElementById("grass-touching-form").innerHTML += `<div class="text-danger">${text}</div>`;
-                            document.getElementById("submit").innerHTML = "Submit"
+                            upload_error(text);
 
                         }
                     }
@@ -64,9 +69,7 @@ file_input.addEventListener("change", function () {
                 return;
             }
             else if (response.status == 400) {
-                document.getElementById("grass-touching-form").innerHTML += `<div class="text-danger">Unknown error happened. Please try again.</div>`;
-                document.getElementById("submit").innerHTML = "Submit"
-                console.error("Unknown error")
+                upload_error("Unknown error");
                 return;
             } 
 
