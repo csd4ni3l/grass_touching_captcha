@@ -1,0 +1,13 @@
+[project]
+name = "grass-touching-captcha"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "dotenv>=0.9.9",
+    "flask>=3.1.1",
+    "flask-login>=0.6.3",
+    "numpy>=2.3.2",
+    "requests>=2.32.4",
+]

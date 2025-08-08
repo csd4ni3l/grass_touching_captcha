@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>{% block title %}{% endblock %}</title>
+ 
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/bootstrap.min.css">
+    <script src="/static/bootstrap.bundle.min.js"></script>
+ 
+    {% block head %} {% endblock %}
+</head>
+<body class="bg-dark">
+    <div class="alert alert-danger" role="alert">
+    DANGER! Touching grass involves going outside which might cause death for certain individuals!
+    For more information, please visit <a href="/info" class="alert-link">the unofficial safety guide</a>!
+    </div>
+    {% block body %} {% endblock %}
+</body>
+</html>
