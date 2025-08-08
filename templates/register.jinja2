@@ -92,6 +92,7 @@ function read_file () {
 
     filereader.onload = function () {
         document.getElementById("submit").innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span><span class="visually-hidden">Loading...</span>';
+        document.getElementById("submit").disabled = true;
         
         const file = file_input.files[0];
         let file_type;
