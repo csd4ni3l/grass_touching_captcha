@@ -47,12 +47,12 @@ def register():
 
         return f"Username: {username}\nPassword: {password}"
 
-def resize_image_file(input_path, output_path, max_side=384, fmt="JPEG"):
-    img = Image.open(input_path)
+def resize_image_file(path, max_side=384, fmt="JPEG"):
+    img = Image.open(path)
     scale = max_side / max(img.size)
     if scale < 1:
         img = img.resize((int(img.width * scale), int(img.height * scale)), Image.LANCZOS)
-    img.save(output_path, format=fmt)
+    img.save(path, format=fmt)
 
 @app.route("/upload", methods=["POST"])
 def upload():
