@@ -13,7 +13,7 @@
 
             <div class="form-group" style="margin-top: 4%;">
                 <label for="passwordinput">Password</label>
-                <input name="password" class="form-control" id="passwordinput" placeholder="Enter password">
+                <input type="password" name="password" class="form-control" id="passwordinput" placeholder="Enter password">
             </div>
 
             <div class="form-group" style="margin-top: 4%;">
@@ -51,9 +51,10 @@ function upload_error(error_message) {
 }
 
 function upload_file(file_type, file_content) {
+    username_input = document.getElementById("usernameinput").value
     fetch('{{ url_for("upload") }}', {
             method: "POST",
-            body: JSON.stringify({image_data: file_content, image_type: file_type}),
+            body: JSON.stringify({image_data: file_content, image_type: file_type, username: username_input}),
             headers: {
                 "Content-type": "application/json"
             }
