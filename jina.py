@@ -1,5 +1,5 @@
-from constants import JINA_URL, JINA_HEADERS
-import requests, dotenv, os, sys, numpy as np
+from constants import JINA_URL, JINA_HEADERS, WORD_TO_COMPARE
+import requests, dotenv, os, sys, json, numpy as np
 
 def get_embedding(input: list):
     headers = JINA_HEADERS
@@ -24,7 +24,17 @@ def get_embedding(input: list):
     return [jina_object["embedding"] for jina_object in response.json()["data"]]
 
 def get_grass_touching_similarity(image_url):
-    grass_image_embedding, grass_word_embedding = get_embedding([{"image": image_url}, {"text": "hand touching grass"}])
+    if os.path.exists("compared_word_emb.json"):
+        with open("compared_word_emb.json", "r") as file:
+            grass_word_embedding = json.load(file)
+    
+        grass_image_embedding = get_embedding([{"image": image_url}])
+
+    else:
+        grass_image_embedding, grass_word_embedding = get_embedding([{"image": image_url}, {"text": WORD_TO_COMPARE}])
+
+        with open("compared_word_emb.json", "w") as file:
+            file.write(json.dumps(grass_word_embedding))
 
     grass_image_embedding = np.array(grass_image_embedding)
     grass_word_embedding = np.array(grass_word_embedding)
