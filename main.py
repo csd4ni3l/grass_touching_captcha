@@ -30,9 +30,9 @@ def get_db():
         """)
         db.execute("""
             CREATE TABLE IF NOT EXISTS Images (
-                image_hash TEXT PRIMARY KEY
+                image_hash TEXT PRIMARY KEY,
                 username TEXT NOT NULL,
-                filename TEXT NOT NULL,
+                filename TEXT NOT NULL
             )
         """)
         db.commit()
