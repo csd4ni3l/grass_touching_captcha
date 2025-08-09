@@ -1,10 +1,10 @@
-from flask import Flask, redirect, url_for, render_template, request, Response, send_from_directory
+from flask import Flask, redirect, url_for, render_template, request, Response, send_from_directory, g
 from dotenv import load_dotenv
-from constants import RICKROLL_LINK, UPLOAD_DIR, MINIMUM_COSINE_SIMILARITY
+from constants import RICKROLL_LINK, UPLOAD_DIR, MINIMUM_COSINE_SIMILARITY, DATABASE_FILE
 from jina import get_grass_touching_similarity
 from PIL import Image
 
-import os, flask_login, uuid, base64
+import os, flask_login, uuid, base64, sqlite3, bcrypt, secrets
 
 if os.path.exists(".env"):
     load_dotenv(".env")
@@ -17,12 +17,34 @@ login_manager.init_app(app)
 
 os.makedirs("uploads", exist_ok=True)
 
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(DATABASE_FILE)
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS Users (
+                username TEXT PRIMARY KEY,
+                password TEXT NOT NULL,
+                password_salt TEXT NOT NULL
+            )
+        """)
+        db.commit()
+    return db
+
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
+
 class User(flask_login.UserMixin):
     pass
 
 @login_manager.user_loader
 def user_loader(user_id):
-    return User.get(user_id)
+    user = User()
+    user.id = user_id
+    return user
 
 @app.route("/iamarealpersonwhotouchedgrass")
 @flask_login.login_required
@@ -34,16 +56,56 @@ def login():
     if request.method == "GET":
         return render_template("login.jinja2")
     elif request.method == "POST":
-        print(request.form)
+        username, password = request.form.get("username"), request.form.get("password")
 
+        cur = get_db().cursor()
+
+        cur.execute("SELECT password, password_salt FROM Users WHERE username = ?", (username,))
+
+        row = cur.fetchone()
+        if not row:
+            cur.close()
+            return Response("Unauthorized", 401)
+
+        hashed_password, salt = row
+
+        if secrets.compare_digest(bcrypt.hashpw(password.encode(), salt.encode()), hashed_password.encode()):
+            cur.close()
+
+            user = User()
+            user.id = username
+            flask_login.login_user(user, remember=True)
+
+            return redirect(url_for("iamarealpersonwhotouchedgrass"))
+        else:
+            cur.close()
+            return Response("Unathorized access. Just go outside, touch grass and make your own account...")
+        
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
         return render_template("register.jinja2")
     elif request.method == "POST":
         username, password = request.form.get("username"), request.form.get("password")
+        cur = get_db().cursor()
 
-        return f"Username: {username}\nPassword: {password}"
+        cur.execute("SELECT username FROM Users WHERE username = ?", (username,))
+        
+        if cur.fetchone():
+            return Response("An account with this username already exists", 400)
+
+        salt = bcrypt.gensalt()
+        hashed_password = bcrypt.hashpw(password.encode(), salt)
+        
+        cur.execute("INSERT INTO Users (username, password, password_salt) VALUES (?, ?, ?)", (username, hashed_password.decode(), salt.decode()))
+        get_db().commit()
+        cur.close()
+
+        user = User()
+        user.id = username
+        flask_login.login_user(user, remember=True)
+
+        return redirect(url_for("iamarealpersonwhotouchedgrass"))
 
 def resize_image_file(path, max_side=256, fmt="JPEG"):
     img = Image.open(path)
@@ -60,7 +122,7 @@ def upload():
         if image_type == "jpeg":
             image_data = image_data[23:] # data:image/jpeg;base64,
         else:
-            image_data = image_data[22:]
+            image_data = image_data[22:] # data:image/png;base64,
 
         image_uuid = uuid.uuid4()
 
@@ -81,7 +143,7 @@ def upload():
     
     grass_touching_similarity = get_grass_touching_similarity(request.url_root.rstrip('/').replace("http://", "https://") + url_for('uploads', filename=f"{image_uuid}.{image_type}"))
     if not grass_touching_similarity >= MINIMUM_COSINE_SIMILARITY:
-        return Response(f"Image not touching grass. Cosine similarity: {grass_touching_similarity}", 401)
+        return Response(f"Imagine not touching grass. Cosine similarity: {grass_touching_similarity}", 401)
 
     return Response(f"/uploads/{image_uuid}.{image_type}", 200)
 

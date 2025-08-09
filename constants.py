@@ -8,5 +8,6 @@ RICKROLL_LINK = "https://www.youtube.com/watch?v=xvFZjo5PgG0"
 UPLOAD_DIR = "uploads"
 MINIMUM_COSINE_SIMILARITY = 0.7
 WORD_TO_COMPARE = "hand touching grass"
+DATABASE_FILE = "data.db"
 
 UPLOAD_DIR = os.path.join(os.getcwd(), UPLOAD_DIR)
