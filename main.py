@@ -131,7 +131,7 @@ def upload():
         else:
             image_data = image_data[22:] # data:image/png;base64,
 
-        image_uuid = uuid.uuid4()
+        image_uuid = str(uuid.uuid4())
 
         if image_type not in ["png", "jpeg"]:
             return Response("Invalid file type.", 400)
