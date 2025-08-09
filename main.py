@@ -55,7 +55,7 @@ def resize_image_file(path, max_side=256, fmt="JPEG"):
 @app.route("/upload", methods=["POST"])
 def upload():
     try:
-        image_type, image_data = request.json["username"], request.json["image_type"], request.json["image_data"].encode("utf-8")
+        image_type, image_data = request.json["image_type"], request.json["image_data"].encode("utf-8")
 
         if image_type == "jpeg":
             image_data = image_data[23:] # data:image/jpeg;base64,
