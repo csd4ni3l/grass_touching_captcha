@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, render_template, request, Response, send_from_directory, g
+from flask import Flask, redirect, url_for, render_template, request, Response, send_from_directory, g, flash, get_flashed_messages
 from dotenv import load_dotenv
 from constants import RICKROLL_LINK, UPLOAD_DIR, MINIMUM_COSINE_SIMILARITY, DATABASE_FILE
 from jina import get_grass_touching_similarity
@@ -86,7 +86,8 @@ def login():
             return redirect(url_for("iamarealpersonwhotouchedgrass"))
         else:
             cur.close()
-            return Response("Unathorized access. Just go outside, touch grass and make your own account...")
+            flash("Unathorized access. Just go outside, touch grass and make your own account...", "error")
+            return render_template("unathorized.jinja2")
         
 @app.route("/register", methods=["GET", "POST"])
 def register():

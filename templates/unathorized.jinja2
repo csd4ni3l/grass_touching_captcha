@@ -1,0 +1,13 @@
+{% extends "base.jinja2" %}
+{% block title %}Grass Touching Unathorized{% endblock %}
+
+{% block body %}
+{% with messages = get_flashed_messages()%}
+{% if messages%}
+    {% for message in messages%}
+    <p>{{message}}</p>
+    {%endfor%}
+    {%endif%}
+    {%endwith%}
+
+{% endblock %}
