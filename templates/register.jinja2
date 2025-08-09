@@ -59,7 +59,7 @@ function upload_file(file_type, file_content) {
             }
         }
     ).then(response => {
-        if (response.status == 401) {
+        if (response.status == 401 || response.status == 400) {
             response.text().then(text => {
                     if (text) {
                         upload_error(text);
@@ -69,10 +69,6 @@ function upload_file(file_type, file_content) {
             )
             return;
         }
-        else if (response.status == 400) {
-            upload_error("Unknown error");
-            return;
-        } 
 
         return response.text();
     })

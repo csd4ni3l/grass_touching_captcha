@@ -4,7 +4,7 @@ from constants import RICKROLL_LINK, UPLOAD_DIR, MINIMUM_COSINE_SIMILARITY, DATA
 from jina import get_grass_touching_similarity
 from PIL import Image
 
-import os, flask_login, uuid, base64, sqlite3, bcrypt, secrets
+import os, flask_login, uuid, base64, sqlite3, bcrypt, secrets, hashlib
 
 if os.path.exists(".env"):
     load_dotenv(".env")
@@ -26,6 +26,13 @@ def get_db():
                 username TEXT PRIMARY KEY,
                 password TEXT NOT NULL,
                 password_salt TEXT NOT NULL
+            )
+        """)
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS Images (
+                username TEXT PRIMARY KEY,
+                filename TEXT NOT NULL,
+                image_hash TEXT NOT NULL
             )
         """)
         db.commit()
@@ -117,7 +124,7 @@ def resize_image_file(path, max_side=256, fmt="JPEG"):
 @app.route("/upload", methods=["POST"])
 def upload():
     try:
-        image_type, image_data = request.json["image_type"], request.json["image_data"].encode("utf-8")
+        username, image_type, image_data = request.json["image_type"], request.json["image_data"].encode("utf-8")
 
         if image_type == "jpeg":
             image_data = image_data[23:] # data:image/jpeg;base64,
@@ -127,13 +134,23 @@ def upload():
         image_uuid = uuid.uuid4()
 
         if image_type not in ["png", "jpeg"]:
-            return "Invalid file type."
+            return Response("Invalid file type.", 400)
 
         if os.path.commonprefix((os.path.realpath(f"{UPLOAD_DIR}/{image_uuid}.{image_type}"), UPLOAD_DIR)) != UPLOAD_DIR:
-            return "Why are you trying path traversal :C"
+            return Response("Why are you trying path traversal :C", 400)
+
+        actual_image_data = base64.b64decode(image_data)
+        image_hash = hashlib.sha512(actual_image_data).hexdigest()
+        cur = get_db().cursor()
+        cur.execute("SELECT image_hash FROM Images WHERE image_hash = ?", (image_hash,))
+        if cur.fetchone():
+            return Response("You can touch grass multiple times. I believe in you. Dont submit the same images.", 400)
+
+        cur.execute("INSERT INTO Images (username, filename, image_hash) VALUES (?, ?, ?)", (username, image_uuid, image_hash))
+        get_db().commit()
 
         with open(f"{UPLOAD_DIR}/{image_uuid}.{image_type}", "wb") as file:
-            file.write(base64.b64decode(image_data))
+            file.write(actual_image_data)
 
         resize_image_file(f"{UPLOAD_DIR}/{image_uuid}.{image_type}", fmt="JPEG" if image_type == "jpeg" else "png")
 
