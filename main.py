@@ -146,7 +146,7 @@ def upload():
         if cur.fetchone():
             return Response("You can touch grass multiple times. I believe in you. Dont submit the same images.", 400)
 
-        cur.execute("INSERT INTO Images (username, filename, image_hash) VALUES (?, ?, ?)", (username, image_uuid, image_hash))
+        cur.execute("INSERT INTO Images (image_hash, username, filename) VALUES (?, ?, ?)", (image_hash, image_uuid, username))
         get_db().commit()
 
         with open(f"{UPLOAD_DIR}/{image_uuid}.{image_type}", "wb") as file:
