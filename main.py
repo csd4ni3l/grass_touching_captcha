@@ -24,6 +24,9 @@ def get_db():
         db.execute("""
             CREATE TABLE IF NOT EXISTS Users (
                 username TEXT PRIMARY KEY,
+                last_grass_touch_time TEXT NOT NULL,
+                grass_touching_count INT NOT NULL,
+                banned BOOL,
                 password TEXT NOT NULL,
                 password_salt TEXT NOT NULL
             )
@@ -53,10 +56,30 @@ def user_loader(user_id):
     user.id = user_id
     return user
 
-@app.route("/iamarealpersonwhotouchedgrass")
+@app.route("/app")
 @flask_login.login_required
-def iamarealpersonwhotouchedgrass():
-    return "You are a real person who touched grass! I can't believe this. You probably just tricked the AI or smth..."
+def application():
+    username = flask_login.current_user.id
+
+    return render_template("app.jinja2", username=username)
+
+@app.route("/leaderboard")
+@flask_login.login_required
+def leaderboard():
+    username = flask_login.current_user.id
+
+    cur = get_db().cursor()
+
+    cur.execute("SELECT grass_touching_count, username FROM USERS ORDER BY grass_touching_count DESC, username ASC LIMIT 25")
+
+    users = cur.fetchall()
+    if not users:
+        cur.close()
+        return Response("DB is not healthy.", 401)
+
+    cur.close()
+
+    return render_template("leaderboard.jinja2", users=users, current_username=username)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -83,7 +106,7 @@ def login():
             user.id = username
             flask_login.login_user(user, remember=True)
 
-            return redirect(url_for("iamarealpersonwhotouchedgrass"))
+            return redirect(url_for("application"))
         else:
             cur.close()
             return Response("Unathorized access. Just go outside, touch grass and make your own account...", 401)
@@ -112,7 +135,7 @@ def register():
         user.id = username
         flask_login.login_user(user, remember=True)
 
-        return redirect(url_for("iamarealpersonwhotouchedgrass"))
+        return redirect(url_for("application"))
 
 def resize_image_file(path, max_side=256, fmt="JPEG"):
     img = Image.open(path)
@@ -175,7 +198,7 @@ def info():
 @app.route("/")
 def main():
     if flask_login.current_user.is_authenticated:
-        return redirect(url_for("iamarealpersonwhotouchedgrass"))
+        return redirect(url_for("application"))
     else:
         return redirect(url_for("login"))
 
@@ -188,4 +211,4 @@ def logout():
 def unauthorized_handler():
     return redirect("/login")
 
-app.run(port=os.environ.get("PORT"), host=os.environ.get("HOST", "0.0.0.0"))
+app.run(debug=True, port=os.environ.get("PORT"), host=os.environ.get("HOST", "0.0.0.0"))
