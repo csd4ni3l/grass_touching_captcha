@@ -4,7 +4,7 @@ from constants import RICKROLL_LINK, UPLOAD_DIR, MINIMUM_COSINE_SIMILARITY, DATA
 from jina import get_grass_touching_similarity
 from PIL import Image
 
-import os, flask_login, uuid, base64, sqlite3, bcrypt, secrets, hashlib
+import os, flask_login, uuid, base64, sqlite3, bcrypt, secrets, hashlib, time
 
 if os.path.exists(".env"):
     load_dotenv(".env")
@@ -127,7 +127,7 @@ def register():
         salt = bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(password.encode(), salt)
         
-        cur.execute("INSERT INTO Users (username, password, password_salt) VALUES (?, ?, ?)", (username, hashed_password.decode(), salt.decode()))
+        cur.execute("INSERT INTO Users (username, password, password_salt, last_grass_touch_time, grass_touching_count, banned) VALUES (?, ?, ?, ?, ?, ?)", (username, hashed_password.decode(), salt.decode(), time.time(), 1, False))
         get_db().commit()
         cur.close()
 
