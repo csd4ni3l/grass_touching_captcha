@@ -126,7 +126,7 @@ submit_button.addEventListener("click", submit)
 
 function get_challenge() {
     username_input = document.getElementById("usernameinput")
-    fetch('{{ url_for("generate_challenge") }}', {
+    fetch('{{ url_for("generate_challenge_route") }}', {
         method: "POST",
         body: JSON.stringify({username: username_input.value}),
         headers: {
