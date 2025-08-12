@@ -68,7 +68,7 @@ def generate_challenge_route():
     if not username in challenges:
         challenges[username] = {"text": generate_challenge(username), "completed": False}
 
-    return challenges[username]
+    return challenges[username]["text"]
 
 def resize_image_file(path, max_side=256, fmt="JPEG"):
     img = Image.open(path)
