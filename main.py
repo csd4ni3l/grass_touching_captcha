@@ -17,7 +17,7 @@ app.secret_key = os.environ["FLASK_SECRET_KEY"]
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
-global challenges 
+global challenges
 challenges = {}
 
 os.makedirs("uploads", exist_ok=True)
@@ -66,7 +66,7 @@ def generate_challenge_route():
     username = request.json["username"]
 
     if not username in challenges:
-        challenges[username] = generate_challenge(username)
+        challenges[username] = {"text": generate_challenge(username), "completed": False}
 
     return challenges[username]
 
@@ -117,8 +117,8 @@ def submit_challenge():
     if not challenges.get(username):
         return Response("You havent started a challenge yet.", 400)
     
-    detected_text, text_similarity = check_text_similarity(f"{UPLOAD_DIR}/{image_uuid}.{image_type}", challenges[username])
-    challenges.pop(username)
+    detected_text, text_similarity = check_text_similarity(f"{UPLOAD_DIR}/{image_uuid}.{image_type}", challenges[username]["text"])
+    challenges[username]['completed'] = True
 
     if not text_similarity >= MINIMUM_OCR_SIMILARITY:
         return Response(f"The text is incorrect on the image. Similarity: {round(text_similarity * 100, 2)}% Detected Text: {detected_text}")
@@ -191,6 +191,15 @@ def register():
         return render_template("register.jinja2")
     elif request.method == "POST":
         username, password = request.form.get("username"), request.form.get("password")
+        
+        if not challenges.get(username):
+            return Response("Start and finish a challenge before registering.", 401)
+        
+        if not challenges[username]["completed"]:
+            return Response("Finish a challenge before registering.", 401)
+
+        challenges.pop(username)
+
         cur = get_db().cursor()
 
         cur.execute("SELECT username FROM Users WHERE username = ?", (username,))
@@ -205,11 +214,7 @@ def register():
         get_db().commit()
         cur.close()
 
-        user = User()
-        user.id = username
-        flask_login.login_user(user, remember=True)
-
-        return redirect(url_for("application"))
+        return redirect(url_for("login"))
     
 @app.route("/uploads/<filename>")
 def uploads(filename):

@@ -4,27 +4,29 @@
 
 <div class="d-flex justify-content-center align-items-center" style="height: 75vh;">
     <div class="bg-white rounded rounded-5 border border-5 border-white p-4">
-        <h2>Register</h2>
-        <div class="form-group" style="margin-top: 4%;">
-            <label for="usernameinput">Username</label>
-            <input name="username" class="form-control" id="usernameinput" placeholder="Enter username">
-        </div>
-
-        <div class="form-group" style="margin-top: 4%;">
-            <label for="passwordinput">Password</label>
-            <input type="password" name="password" class="form-control" id="passwordinput" placeholder="Enter password">
-        </div>
-
-        <div class="form-group" style="margin-top: 4%;">
-            <div hidden id="grass-touching-form" class="mb-3">
-                <label class="form-label" for="file_input">Grass touching proof</label>
-                <div id="challengehelp">To complete this challenge, you need to submit a picture of you touching grass next to a paper containing the following text: Loading...</div>
-                <input accept="image/png, image/jpeg" name="file" type="file" class="form-control" id="file_input">
+        <form action="/register" method="post">
+            <h2>Register</h2>
+            <div class="form-group" style="margin-top: 4%;">
+                <label for="usernameinput">Username</label>
+                <input name="username" class="form-control" id="usernameinput" placeholder="Enter username">
             </div>
 
-            <small id="proofhelp" class="form-text text-muted">Dont worry! We wont tell your friends.</small>
-        </div>
-        <button id="submit" class="btn btn-primary mx-auto d-block" style="width: 100%; margin-top: 4%;">Submit</button>
+            <div class="form-group" style="margin-top: 4%;">
+                <label for="passwordinput">Password</label>
+                <input type="password" name="password" class="form-control" id="passwordinput" placeholder="Enter password">
+            </div>
+
+            <div class="form-group" style="margin-top: 4%;">
+                <div hidden id="grass-touching-form" class="mb-3">
+                    <label class="form-label" for="file_input">Grass touching proof</label>
+                    <div id="challengehelp">To complete this challenge, you need to submit a picture of you touching grass next to a paper containing the following text: Loading...</div>
+                    <input accept="image/png, image/jpeg" name="file" type="file" class="form-control" id="file_input">
+                </div>
+
+                <small id="proofhelp" class="form-text text-muted">Dont worry! We wont tell your friends.</small>
+            </div>
+            <button id="submit" type="button" class="btn btn-primary mx-auto d-block" style="width: 100%; margin-top: 4%;">Submit</button>
+        </form>
     </div>
 </div>
 
@@ -34,20 +36,19 @@ function upload_success(image_url) {
     document.getElementById("submit").innerHTML = "Submit"
     document.getElementById("submit").type = "submit"
 
-    document.getElementById("grass-touching-form").innerHTML += `<img class="preview-img" src="${image_url}"></img>`;
+    document.getElementById("grass-touching-form").innerHTML += `<img class="preview-img" src="${image_url}">`;
 }
 
 function upload_error(error_message) {
     console.error(error_message)
-    
+
+    file_input = document.getElementById("file_input");
     file_input.value = ''
 
     document.getElementById("submit").innerHTML = "Submit"
+    document.getElementById("submit").disabled = false;
     document.getElementById("grass-touching-form").innerHTML += `<div class="text-danger">${error_message}</div>`;
 
-    file_input = document.getElementById("file_input");
-    file_input.removeEventListener("change", read_file);
-    file_input.addEventListener("change", read_file);
 }
 
 function upload_file(file_type, file_content) {
@@ -99,6 +100,10 @@ function read_file () {
         }
         else if (file.type.match("image/png")) {
             file_type = "png";
+        }
+        else {
+            document.getElementById("grass-touching-form").textContent += `<div class="text-danger">Only JPEG and PNG is supported.</div>`;
+            return;
         }
 
         upload_file(file_type, filereader.result);
