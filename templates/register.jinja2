@@ -5,27 +5,26 @@
 <div class="d-flex justify-content-center align-items-center" style="height: 75vh;">
     <div class="bg-white rounded rounded-5 border border-5 border-white p-4">
         <h2>Register</h2>
-        <form target="/register" method="post">
-            <div class="form-group" style="margin-top: 4%;">
-                <label for="usernameinput">Username</label>
-                <input name="username" class="form-control" id="usernameinput" placeholder="Enter username">
+        <div class="form-group" style="margin-top: 4%;">
+            <label for="usernameinput">Username</label>
+            <input name="username" class="form-control" id="usernameinput" placeholder="Enter username">
+        </div>
+
+        <div class="form-group" style="margin-top: 4%;">
+            <label for="passwordinput">Password</label>
+            <input type="password" name="password" class="form-control" id="passwordinput" placeholder="Enter password">
+        </div>
+
+        <div class="form-group" style="margin-top: 4%;">
+            <div hidden id="grass-touching-form" class="mb-3">
+                <label class="form-label" for="file_input">Grass touching proof</label>
+                <div id="challengehelp">To complete this challenge, you need to submit a picture of you touching grass next to a paper containing the following text: Loading...</div>
+                <input accept="image/png, image/jpeg" name="file" type="file" class="form-control" id="file_input">
             </div>
 
-            <div class="form-group" style="margin-top: 4%;">
-                <label for="passwordinput">Password</label>
-                <input type="password" name="password" class="form-control" id="passwordinput" placeholder="Enter password">
-            </div>
-
-            <div class="form-group" style="margin-top: 4%;">
-                <div id="grass-touching-form" class="mb-3">
-                    <label class="form-label" for="file_input">Grass touching proof</label>
-                    <input accept="image/png, image/jpeg" name="file" type="file" class="form-control" id="file_input">
-                </div>
-
-                <small id="proofhelp" class="form-text text-muted">Dont worry! We wont tell your friends.</small>
-            </div>
-            <button disabled id="submit" type="submit" class="btn btn-primary mx-auto d-block" style="width: 100%; margin-top: 4%;">Submit</button>
-        </form>
+            <small id="proofhelp" class="form-text text-muted">Dont worry! We wont tell your friends.</small>
+        </div>
+        <button id="submit" class="btn btn-primary mx-auto d-block" style="width: 100%; margin-top: 4%;">Submit</button>
     </div>
 </div>
 
@@ -33,6 +32,7 @@
 function upload_success(image_url) {
     document.getElementById("submit").disabled = false;
     document.getElementById("submit").innerHTML = "Submit"
+    document.getElementById("submit").type = "submit"
 
     document.getElementById("grass-touching-form").innerHTML += `<img class="preview-img" src="${image_url}"></img>`;
 }
@@ -52,7 +52,7 @@ function upload_error(error_message) {
 
 function upload_file(file_type, file_content) {
     username_input = document.getElementById("usernameinput").value
-    fetch('{{ url_for("upload") }}', {
+    fetch('{{ url_for("submit_challenge") }}', {
             method: "POST",
             body: JSON.stringify({image_data: file_content, image_type: file_type, username: username_input}),
             headers: {
@@ -107,8 +107,42 @@ function read_file () {
     filereader.readAsDataURL(file_input.files[0]);
 }
 
-file_input = document.getElementById("file_input");
-file_input.addEventListener("change", read_file);
+function submit () {
+    username_input = document.getElementById("usernameinput")
+    grass_touching_form = document.getElementById("grass-touching-form")
+
+    if (grass_touching_form.hidden) {
+        if (username_input.value) {
+            grass_touching_form.hidden = false;
+        }
+    }
+    else {
+        read_file()
+    }
+}
+
+submit_button = document.getElementById("submit")
+submit_button.addEventListener("click", submit)
+
+function get_challenge() {
+    username_input = document.getElementById("usernameinput")
+    fetch('{{ url_for("generate_challenge") }}', {
+        method: "POST",
+        body: JSON.stringify({username: username_input.value}),
+        headers: {
+            "Content-type": "application/json"
+        }
+    }).then(response => {
+        response.text().then(challenge_text => {
+            if (challenge_text) {
+                document.getElementById("challengehelp").innerHTML = `To complete this challenge, you need to submit a picture of you touching grass next to a paper containing the following text: ${challenge_text}`
+            }
+        })
+
+    })  
+}
+
+window.onload = getchallenge
 
 </script>
 

@@ -6,11 +6,11 @@ blinker==1.9.0
     # via flask
 certifi==2025.8.3
     # via requests
-charset-normalizer==3.4.2
+charset-normalizer==3.4.3
     # via requests
 click==8.2.1
     # via flask
-dotenv==0.9.9
+english-words==2.0.1
     # via grass-touching-captcha (pyproject.toml)
 flask==3.1.1
     # via
@@ -29,12 +29,10 @@ markupsafe==3.0.2
     #   flask
     #   jinja2
     #   werkzeug
-numpy==2.3.2
-    # via grass-touching-captcha (pyproject.toml)
 pillow==11.3.0
     # via grass-touching-captcha (pyproject.toml)
 python-dotenv==1.1.1
-    # via dotenv
+    # via grass-touching-captcha (pyproject.toml)
 requests==2.32.4
     # via grass-touching-captcha (pyproject.toml)
 urllib3==2.5.0
