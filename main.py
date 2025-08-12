@@ -120,7 +120,7 @@ def submit_challenge():
     detected_text, text_similarity = check_text_similarity(f"{UPLOAD_DIR}/{image_uuid}.{image_type}", challenges[username]["text"])
 
     if not text_similarity >= MINIMUM_OCR_SIMILARITY:
-        return Response(f"The text is incorrect on the image. Similarity: {round(text_similarity * 100, 2)}% Detected Text: {detected_text}")
+        return Response(f"The text is incorrect on the image. Similarity: {round(text_similarity * 100, 2)}% Detected Text: {detected_text}", 400)
     
     grass_touching_similarity = get_grass_touching_similarity(request.url_root.rstrip('/').replace("http://", "https://") + url_for('uploads', filename=f"{image_uuid}.{image_type}"))
     if not grass_touching_similarity >= MINIMUM_COSINE_SIMILARITY:
