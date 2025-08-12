@@ -13,7 +13,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link" href="/app">Home</a>
+          <a class="nav-link" href="#">Home</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/info">Information</a>
@@ -21,10 +21,23 @@
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="/leaderboard">Leaderboard</a>
         </li>
+        {% if not current_username %}
+        <li class="nav-item">
+          <a class="nav-link" href="/register">Register</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/login">Login</a>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="nav-link" href="/logout">Logout</a>
+        </li>
+        {% endif %}
       </ul>
     </div>
   </div>
 </nav>
+
 <div class="d-flex justify-content-center align-items-center vh-100 bg-dark">
     <div class="card text-center shadow-lg" style="width: 400px;">
         <div class="card-header bg-primary text-white">

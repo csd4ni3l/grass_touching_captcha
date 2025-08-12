@@ -131,17 +131,15 @@ def submit_challenge():
 
     return Response(f"/uploads/{image_uuid}.{image_type}", 200)
 
-@app.route("/app")
-@flask_login.login_required
+@app.route("/")
 def application():
-    username = flask_login.current_user.id
+    username = flask_login.current_user.id if hasattr(flask_login.current_user, "id") else ""
 
-    return render_template("app.jinja2", username=username)
+    return render_template("home.jinja2", username=username)
 
 @app.route("/leaderboard")
-@flask_login.login_required
 def leaderboard():
-    username = flask_login.current_user.id
+    username = flask_login.current_user.id if hasattr(flask_login.current_user, "id") else ""
 
     cur = get_db().cursor()
 
@@ -224,13 +222,6 @@ def uploads(filename):
 @app.route("/info")
 def info():
     return redirect(RICKROLL_LINK)
-
-@app.route("/")
-def main():
-    if flask_login.current_user.is_authenticated:
-        return redirect(url_for("application"))
-    else:
-        return redirect(url_for("login"))
 
 @app.route('/logout')
 def logout():

@@ -1,0 +1,66 @@
+{% extends "base.jinja2" %}
+{% block title %}Grass Touching Dashboard{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid d-flex justify-content-center">
+    <a class="navbar-brand" href="#">Grass Touching Captcha</a>
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/info">Information</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/leaderboard">Leaderboard</a>
+        </li>
+        {% if not current_username %}
+        <li class="nav-item">
+          <a class="nav-link" href="/register">Register</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/login">Login</a>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="nav-link" href="/logout">Logout</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="d-flex justify-content-center align-items-center vh-100 bg-dark">
+    <div class="d-flex flex-column justify-content-center text-white text-center" style="transform: translateY(-25%);">
+        {% if username %}
+            <h1>Welcome back, {{ username }}</h1>
+            <h5>Why are you here?</h5>
+            <h5>Why did you cheat?</h5>
+            <h5>I know you did!!!</h5>
+            <h5>No one touches grass!</h5>
+            <h5>I know you don't go outside you liar!</h5>
+            <h5>You are a discord moderator who plays League of Legends 24 hours a day!</h5>
+            <h5>But, if you really want to learn how to go outside and touch grass, check our <a href="/info">unofficial guide</a></h5>
+            <h5>To prove you belong here, you have to touch grass each day or your account will be permanently banned with no exceptions.</h5>
+            <h5>To see how you fare against others, check the <a href="/leaderboard">leaderboard</a></h5>
+        {% else %}
+            <h1>Welcome anonymous discord moderator on the internet!</h1>
+            <h5>Why are you here?</h5>
+            <h5>You should go outside and touch grass instead.</h5>
+            <h5>Even though i know you won't, if you want to learn how to go outside and touch grass, check our <a href="/info">unofficial guide</a></h5>
+            <h5>After watching the guide, you should <a href="/register">register</a> on our website!</h5>
+            <h5>To prove you belong here, you have to touch grass each day or your account will be permanently banned with no exceptions.</h5>
+            <h5>To see how you fare against others, check the <a href="/leaderboard">leaderboard</a></h5>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
