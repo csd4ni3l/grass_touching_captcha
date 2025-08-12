@@ -61,7 +61,7 @@ def user_loader(user_id):
     user.id = user_id
     return user
 
-@app.route("/generate_challenge")
+@app.route("/generate_challenge", methods=["POST"])
 def generate_challenge_route():
     username = request.json["username"]
 

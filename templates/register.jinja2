@@ -107,22 +107,6 @@ function read_file () {
     filereader.readAsDataURL(file_input.files[0]);
 }
 
-function submit () {
-    username_input = document.getElementById("usernameinput")
-    grass_touching_form = document.getElementById("grass-touching-form")
-
-    if (grass_touching_form.hidden) {
-        if (username_input.value) {
-            grass_touching_form.hidden = false;
-        }
-    }
-    else {
-        read_file()
-    }
-}
-
-submit_button = document.getElementById("submit")
-submit_button.addEventListener("click", submit)
 
 function get_challenge() {
     username_input = document.getElementById("usernameinput")
@@ -142,7 +126,23 @@ function get_challenge() {
     })  
 }
 
-window.onload = get_challenge;
+function submit () {
+    username_input = document.getElementById("usernameinput")
+    grass_touching_form = document.getElementById("grass-touching-form")
+
+    if (grass_touching_form.hidden) {
+        if (username_input.value) {
+            grass_touching_form.hidden = false;
+            get_challenge();
+        }
+    }
+    else {
+        read_file();
+    }
+}
+
+submit_button = document.getElementById("submit")
+submit_button.addEventListener("click", submit)
 
 </script>
 
