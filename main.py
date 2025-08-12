@@ -226,10 +226,10 @@ def info():
 @app.route('/logout')
 def logout():
     flask_login.logout_user()
-    return 'Logged out'
+    return redirect(url_for("/"))
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
-    return redirect("/login")
+    return redirect(url_for("login"))
 
 app.run(port=os.environ.get("PORT"), host=os.environ.get("HOST", "0.0.0.0"))
