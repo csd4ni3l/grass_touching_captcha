@@ -118,7 +118,6 @@ def submit_challenge():
         return Response("You havent started a challenge yet.", 400)
     
     detected_text, text_similarity = check_text_similarity(f"{UPLOAD_DIR}/{image_uuid}.{image_type}", challenges[username]["text"])
-    challenges[username]['completed'] = True
 
     if not text_similarity >= MINIMUM_OCR_SIMILARITY:
         return Response(f"The text is incorrect on the image. Similarity: {round(text_similarity * 100, 2)}% Detected Text: {detected_text}")
@@ -127,6 +126,8 @@ def submit_challenge():
     if not grass_touching_similarity >= MINIMUM_COSINE_SIMILARITY:
         os.remove(f"{UPLOAD_DIR}/{image_uuid}.{image_type}")
         return Response(f"Imagine not touching grass. Cosine similarity: {grass_touching_similarity}", 401)
+
+    challenges[username]['completed'] = True
 
     return Response(f"/uploads/{image_uuid}.{image_type}", 200)
 
