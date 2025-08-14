@@ -49,8 +49,8 @@
         <ul class="list-group list-group-flush">
             {% for user in users %}
                 <li class="list-group-item d-flex justify-content-between align-items-center 
-                    {% if user.1 == current_username %}list-group-item-success fw-bold{% endif %}">
-                    <span>{{ loop.index }}. {{ user.1 }} ({{ user.0 }})</span>
+                    {% if user.2 == current_username %}list-group-item-success fw-bold{% endif %} {% if user.1 %}list-group-item-danger{% endif %}">
+                    <span>{{ loop.index }}. {{ user.2 }} ({{ user.0 }})</span>
                 </li>
             {% endfor %}
         </ul>

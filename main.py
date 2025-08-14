@@ -189,7 +189,7 @@ def leaderboard():
 
     cur = get_db().cursor()
 
-    cur.execute("SELECT grass_touching_count, username FROM USERS ORDER BY grass_touching_count DESC, username ASC LIMIT 25")
+    cur.execute("SELECT grass_touching_count, banned, username FROM USERS ORDER BY grass_touching_count DESC, username ASC LIMIT 25")
 
     users = cur.fetchall()
     if not users:
