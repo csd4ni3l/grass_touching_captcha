@@ -84,6 +84,9 @@ def unauthorized_handler():
 
 @app.before_request
 def check_banned():
+    if not hasattr(flask_login.current_user, "id"):
+        return
+    
     username = flask_login.current_user.id
     
     cur = get_db().cursor()
