@@ -272,6 +272,6 @@ def info():
 @app.route('/logout')
 def logout():
     flask_login.logout_user()
-    return redirect(url_for("/"))
+    return redirect("/")
 
 app.run(port=os.environ.get("PORT"), host=os.environ.get("HOST", "0.0.0.0"))
