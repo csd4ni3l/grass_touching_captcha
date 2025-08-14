@@ -40,7 +40,7 @@
                     {% for category, message in messages %}
                         {% if category == 'error' %}
                             const modalBody = document.getElementById("errorModalBody");
-                            modalBody.textContent = "{{ message|tojson }}";
+                            modalBody.textContent = {{ message|tojson }};
 
                             const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
                             errorModal.show();
