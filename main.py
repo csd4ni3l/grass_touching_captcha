@@ -95,7 +95,7 @@ def check_banned():
     cur.close()
 
     if row is None or row[0]:
-        flash("Imagine forgetting to touch grass so you get banned from my app. Such a discord moderator you are. You have no life. Just go outside.")
+        flash("Imagine forgetting to touch grass so you get banned from my app. Such a discord moderator you are. You have no life. Just go outside.", "error")
         flask_login.logout_user()
         return redirect("/")
 
