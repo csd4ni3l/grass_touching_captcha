@@ -86,7 +86,7 @@ def resize_image_file(path, max_side=256, fmt="JPEG"):
         img = img.resize((int(img.width * scale), int(img.height * scale)), Image.LANCZOS)
     img.save(path, format=fmt)
 
-@app.route("/submit_grass_touching", methods=["POST"])
+@app.route("/grass_touch_submit", methods=["POST"])
 @flask_login.login_required
 def submit_grass_touching():
     username = flask_login.current_user.id
@@ -107,6 +107,10 @@ def submit_grass_touching():
     cur.close()
 
     return redirect("/")
+
+@app.route("/submit_grasstouching")
+def submit_grasstouching():
+    return render_template("submit_grass_touching.jinja2")
 
 @app.route("/generate_challenge", methods=["POST"])
 def generate_challenge_route():
