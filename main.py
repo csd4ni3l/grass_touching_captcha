@@ -99,8 +99,8 @@ def submit_grass_touching():
 
     cur = get_db().cursor()
 
-    cur.execute("UPDATE Users grass_touching_count = grass_touching_count + 1 WHERE username = ?", (username,))
-    cur.execute("UPDATE Users last_grass_touch_time = ? WHERE username = ?", (time.time(), username))
+    cur.execute("UPDATE Users SET grass_touching_count = grass_touching_count + 1 WHERE username = ?", (username,))
+    cur.execute("UPDATE Users SET last_grass_touch_time = ? WHERE username = ?", (time.time(), username))
 
     get_db().commit()
 
