@@ -6,7 +6,7 @@ from PIL import Image
 from jina import get_grass_touching_similarity
 from ocr_check import generate_challenge, check_text_similarity
 
-import os, flask_login, uuid, base64, sqlite3, bcrypt, secrets, hashlib, time
+import os, flask_login, uuid, base64, sqlite3, bcrypt, secrets, hashlib, time, threading
 
 if os.path.exists(".env"):
     load_dotenv(".env")
@@ -52,6 +52,20 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
+def check_grass_touching_bans():
+    while True:
+        cur = get_db().cursor()
+        
+        cur.execute("SELECT username, last_grass_touch_time FROM Users")
+        for user in cur.fetchall():
+            if time.time() - user[1] >= (24 * 3600):
+                cur.execute("UPDATE users SET banned = ? WHERE username = ?", (True, user[0]))
+        cur.close()
+
+        time.sleep(60)
+
+threading.Thread(target=check_grass_touching_bans, daemon=True).start()
+
 class User(flask_login.UserMixin):
     pass
 
@@ -61,6 +75,39 @@ def user_loader(user_id):
     user.id = user_id
     return user
 
+@login_manager.unauthorized_handler
+def unauthorized_handler():
+    return redirect(url_for("login"))
+
+def resize_image_file(path, max_side=256, fmt="JPEG"):
+    img = Image.open(path)
+    scale = max_side / max(img.size)
+    if scale < 1:
+        img = img.resize((int(img.width * scale), int(img.height * scale)), Image.LANCZOS)
+    img.save(path, format=fmt)
+
+@app.route("/submit_grass_touching", methods=["POST"])
+@flask_login.login_required
+def submit_grass_touching():
+    username = flask_login.current_user.id
+
+    if not challenges.get(username):
+        return Response("Start and finish a challenge before submitting the grass touching.", 401)
+    
+    if not challenges[username]["completed"]:
+        return Response("Finish a challenge before submitting the grass touching.", 401)
+
+    cur = get_db().cursor()
+
+    cur.execute("UPDATE Users grass_touching_count = grass_touching_count + 1 WHERE username = ?", (username,))
+    cur.execute("UPDATE Users last_grass_touch_time = ? WHERE username = ?", (time.time(), username))
+
+    get_db().commit()
+
+    cur.close()
+
+    return redirect("/")
+
 @app.route("/generate_challenge", methods=["POST"])
 def generate_challenge_route():
     username = request.json["username"]
@@ -69,13 +116,6 @@ def generate_challenge_route():
         challenges[username] = {"text": generate_challenge(username), "completed": False}
 
     return challenges[username]["text"]
-
-def resize_image_file(path, max_side=256, fmt="JPEG"):
-    img = Image.open(path)
-    scale = max_side / max(img.size)
-    if scale < 1:
-        img = img.resize((int(img.width * scale), int(img.height * scale)), Image.LANCZOS)
-    img.save(path, format=fmt)
 
 @app.route("/submit_challenge", methods=["POST"])
 def submit_challenge():
@@ -227,9 +267,5 @@ def info():
 def logout():
     flask_login.logout_user()
     return redirect(url_for("/"))
-
-@login_manager.unauthorized_handler
-def unauthorized_handler():
-    return redirect(url_for("login"))
 
 app.run(port=os.environ.get("PORT"), host=os.environ.get("HOST", "0.0.0.0"))
