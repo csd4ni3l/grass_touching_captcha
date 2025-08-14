@@ -31,7 +31,7 @@ def get_db():
                 username TEXT PRIMARY KEY,
                 last_grass_touch_time TEXT NOT NULL,
                 grass_touching_count INT NOT NULL,
-                banned BOOL,
+                banned BOOL NOT NULL,
                 password TEXT NOT NULL,
                 password_salt TEXT NOT NULL
             )
@@ -61,6 +61,8 @@ def check_grass_touching_bans():
             for user in cur.fetchall():
                 if time.time() - float(user[1]) >= (24 * 3600):
                     cur.execute("UPDATE users SET banned = ? WHERE username = ?", (True, user[0]))
+            
+            get_db().commit()
             cur.close()
 
             time.sleep(60)
