@@ -54,15 +54,16 @@ def close_connection(exception):
 
 def check_grass_touching_bans():
     while True:
-        cur = get_db().cursor()
-        
-        cur.execute("SELECT username, last_grass_touch_time FROM Users")
-        for user in cur.fetchall():
-            if time.time() - user[1] >= (24 * 3600):
-                cur.execute("UPDATE users SET banned = ? WHERE username = ?", (True, user[0]))
-        cur.close()
+        with app.app_context():
+            cur = get_db().cursor()
+            
+            cur.execute("SELECT username, last_grass_touch_time FROM Users")
+            for user in cur.fetchall():
+                if time.time() - user[1] >= (24 * 3600):
+                    cur.execute("UPDATE users SET banned = ? WHERE username = ?", (True, user[0]))
+            cur.close()
 
-        time.sleep(60)
+            time.sleep(60)
 
 threading.Thread(target=check_grass_touching_bans, daemon=True).start()
 
