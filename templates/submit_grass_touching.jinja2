@@ -33,7 +33,7 @@
         <form action="/grass_touch_submit" method="post">
             <h2>Grass touching submit</h2>
             <div class="form-group" style="margin-top: 4%;">
-                <div hidden id="grass-touching-form" class="mb-3">
+                <div id="grass-touching-form" class="mb-3">
                     <label class="form-label" for="file_input">Grass touching proof</label>
                     <div id="challengehelp">To complete this challenge, you need to submit a picture of you touching grass next to a paper containing the following text: Loading...</div>
                     <input accept="image/png, image/jpeg" name="file" type="file" class="form-control" id="file_input">
@@ -74,10 +74,9 @@ function upload_error(error_message) {
 }
 
 function upload_file(file_type, file_content) {
-    username_input = document.getElementById("usernameinput")
     fetch('{{ url_for("submit_challenge") }}', {
             method: "POST",
-            body: JSON.stringify({image_data: file_content, image_type: file_type, username: username_input.value}),
+            body: JSON.stringify({image_data: file_content, image_type: file_type, username: "{{ username }}"}),
             headers: {
                 "Content-type": "application/json"
             }
@@ -137,10 +136,9 @@ function read_file () {
 
 
 function get_challenge() {
-    username_input = document.getElementById("usernameinput")
     fetch('{{ url_for("generate_challenge_route") }}', {
         method: "POST",
-        body: JSON.stringify({username: username_input.value}),
+        body: JSON.stringify({username: "{{ username }}"}),
         headers: {
             "Content-type": "application/json"
         }
@@ -154,23 +152,8 @@ function get_challenge() {
     })  
 }
 
-function submit () {
-    username_input = document.getElementById("usernameinput")
-    grass_touching_form = document.getElementById("grass-touching-form")
-
-    if (grass_touching_form.hidden) {
-        if (username_input.value) {
-            grass_touching_form.hidden = false;
-            get_challenge();
-        }
-    }
-    else {
-        read_file();
-    }
-}
-
 submit_button = document.getElementById("submit")
-submit_button.addEventListener("click", submit)
+submit_button.addEventListener("click", read_file)
 
 </script>
 

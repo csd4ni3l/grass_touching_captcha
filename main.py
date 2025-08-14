@@ -109,8 +109,10 @@ def submit_grass_touching():
     return redirect("/")
 
 @app.route("/submit_grasstouching")
+@flask_login.login_required
 def submit_grasstouching():
-    return render_template("submit_grass_touching.jinja2")
+    username = flask_login.current_user.id
+    return render_template("submit_grass_touching.jinja2", username=username)
 
 @app.route("/generate_challenge", methods=["POST"])
 def generate_challenge_route():
