@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, render_template, request, Response, send_from_directory, g
+from flask import Flask, redirect, url_for, render_template, request, Response, send_from_directory, g, flash
 from dotenv import load_dotenv
 from constants import RICKROLL_LINK, UPLOAD_DIR, MINIMUM_COSINE_SIMILARITY, MINIMUM_OCR_SIMILARITY, DATABASE_FILE
 from PIL import Image
@@ -81,6 +81,20 @@ def user_loader(user_id):
 @login_manager.unauthorized_handler
 def unauthorized_handler():
     return redirect(url_for("login"))
+
+@app.before_request
+def check_banned():
+    username = flask_login.current_user.id
+    
+    cur = get_db().cursor()
+    cur.execute("SELECT banned FROM Users WHERE username = ?", (username))
+    row = cur.fetchone()
+    cur.close()
+
+    if row is None or row[0]:
+        flash("Imagine forgetting to touch grass so you get banned from my app. Such a discord moderator you are. You have no life. Just go outside.")
+        flask_login.logout_user()
+        return redirect("/")
 
 def resize_image_file(path, max_side=256, fmt="JPEG"):
     img = Image.open(path)
