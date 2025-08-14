@@ -152,6 +152,8 @@ function get_challenge() {
     })  
 }
 
+window.onload = get_challenge;
+
 submit_button = document.getElementById("submit")
 submit_button.addEventListener("click", read_file)
 
