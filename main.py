@@ -59,7 +59,7 @@ def check_grass_touching_bans():
             
             cur.execute("SELECT username, last_grass_touch_time FROM Users")
             for user in cur.fetchall():
-                if time.time() - user[1] >= (24 * 3600):
+                if time.time() - float(user[1]) >= (24 * 3600):
                     cur.execute("UPDATE users SET banned = ? WHERE username = ?", (True, user[0]))
             cur.close()
 
