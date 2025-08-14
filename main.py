@@ -87,7 +87,7 @@ def check_banned():
     username = flask_login.current_user.id
     
     cur = get_db().cursor()
-    cur.execute("SELECT banned FROM Users WHERE username = ?", (username))
+    cur.execute("SELECT banned FROM Users WHERE username = ?", (username,))
     row = cur.fetchone()
     cur.close()
 
