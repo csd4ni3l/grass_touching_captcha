@@ -2,6 +2,7 @@
 {% block title %}Grass Touching Achievements{% endblock %}
 
 {% block body %}
+<body class="bg-dark text-light">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid d-flex justify-content-center">
     <a class="navbar-brand" href="/">Grass Touching Captcha</a>
@@ -29,7 +30,7 @@
     {% for achievement in achievements %}
       {% set unlocked = grass_touching_count >= achievement[0] %}
       <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-        <div class="card h-100 {% if unlocked %}border-success shadow{% else %}border-secondary text-muted{% endif %}">
+        <div class="card h-100 {% if unlocked %}border-success shadow{% else %}border-secondary text-muted{% endif %} bg-dark text-light">
           <div class="card-body">
             <h5 class="card-title">
               {% if unlocked %}
@@ -48,4 +49,5 @@
     {% endfor %}
   </div>
 </div>
+</body>
 {% endblock %}
