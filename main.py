@@ -272,7 +272,7 @@ def profile():
     
     grass_touching_count, last_grass_touch_time = row
 
-    return render_template("profile.jinja2", username=username, grass_touching_count=grass_touching_count, last_grass_touch_time=float(last_grass_touch_time), now=time.time(), your_account=True)
+    return render_template("profile.jinja2", username=username, grass_touching_count=grass_touching_count, last_grass_touch_time=float(last_grass_touch_time), now=time.time(), achievements=ACHIEVEMENTS, your_account=True)
 
 @app.route("/profile/<username>")
 def public_profile(username):    
@@ -289,7 +289,7 @@ def public_profile(username):
     
     grass_touching_count, last_grass_touch_time = row
 
-    return render_template("profile.jinja2", username=username, grass_touching_count=grass_touching_count, last_grass_touch_time=float(last_grass_touch_time), now=time.time(), your_account=False)
+    return render_template("profile.jinja2", username=username, grass_touching_count=grass_touching_count, last_grass_touch_time=float(last_grass_touch_time), now=time.time(), achievements=ACHIEVEMENTS, your_account=False)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
