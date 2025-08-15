@@ -395,7 +395,7 @@ def change_password():
     new_salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(new_password.encode(), new_salt)
 
-    cur.execute("UPDATE Users SET password = ?, password_salt = ? WHERE username = ?", (hashed_password, new_salt, username))
+    cur.execute("UPDATE Users SET password = ?, password_salt = ? WHERE username = ?", (hashed_password.decode(), new_salt.decode(), username))
     
     get_db().commit()
     cur.close()
