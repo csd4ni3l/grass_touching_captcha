@@ -35,7 +35,7 @@
             {% endif %}
             
             <p class="mb-1">Grass touches: <strong>{{ grass_touching_count }}</strong></p>
-            <p class="mb-3">Last touch: <strong>{{ (time.time() - last_grass_touch_time) | timeago }}</strong></p>
+            <p class="mb-3">Last touch: <strong>{{ (now - last_grass_touch_time) | timeago }}</strong></p>
         </div>
     </div>
 
