@@ -403,7 +403,7 @@ def change_password():
     flask_login.logout_user()
     return redirect(url_for("login"))
 
-@app.route("/delete_data", methods=["POST"])
+@app.route("/delete_account", methods=["POST"])
 @flask_login.login_required
 def delete_data():
     username = flask_login.current_user.id
