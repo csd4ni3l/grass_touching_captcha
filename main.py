@@ -1,6 +1,6 @@
 from flask import Flask, redirect, url_for, render_template, request, Response, send_from_directory, g, flash
 from dotenv import load_dotenv
-from constants import RICKROLL_LINK, UPLOAD_DIR, MINIMUM_COSINE_SIMILARITY, MINIMUM_OCR_SIMILARITY, DATABASE_FILE
+from constants import RICKROLL_LINK, UPLOAD_DIR, MINIMUM_COSINE_SIMILARITY, MINIMUM_OCR_SIMILARITY, DATABASE_FILE, ACHIEVEMENTS
 from PIL import Image
 
 from jina import get_grass_touching_similarity
@@ -21,6 +21,22 @@ global challenges
 challenges = {}
 
 os.makedirs("uploads", exist_ok=True)
+
+def time_ago(seconds):
+    seconds = int(seconds)
+    if seconds < 60:
+        return f"{seconds} second{'s' if seconds != 1 else ''} ago"
+    elif seconds < 3600:
+        minutes = seconds // 60
+        return f"{minutes} minute{'s' if minutes != 1 else ''} ago"
+    elif seconds < 86400:
+        hours = seconds // 3600
+        return f"{hours} hour{'s' if hours != 1 else ''} ago"
+    else:
+        days = seconds // 86400
+        return f"{days} day{'s' if days != 1 else ''} ago"
+
+app.jinja_env.filters['timeago'] = time_ago
 
 def get_db():
     db = getattr(g, '_database', None)
@@ -46,6 +62,37 @@ def get_db():
         db.commit()
     return db
 
+class User(flask_login.UserMixin):
+    pass
+
+@login_manager.user_loader
+def user_loader(user_id):
+    user = User()
+    user.id = user_id
+    return user
+
+@login_manager.unauthorized_handler
+def unauthorized_handler():
+    flash("Why are you trying to access content reserved for logged in users? Just go outside, touch some grass and register your own account.", "error")
+    return redirect(url_for("login"))
+
+@app.before_request
+def check_banned():
+    if not hasattr(flask_login.current_user, "id"):
+        return
+    
+    username = flask_login.current_user.id
+    
+    cur = get_db().cursor()
+    cur.execute("SELECT banned FROM Users WHERE username = ?", (username,))
+    row = cur.fetchone()
+    cur.close()
+
+    if row is None or row[0]:
+        flash("Imagine forgetting to touch grass so you get banned from my app. Such a discord moderator you are. You have no life. Just go outside.", "error")
+        flask_login.logout_user()
+        return redirect("/")
+
 @app.teardown_appcontext
 def close_connection(exception):
     db = getattr(g, '_database', None)
@@ -65,39 +112,9 @@ def check_grass_touching_bans():
             get_db().commit()
             cur.close()
 
-            time.sleep(60)
+        time.sleep(60)
 
 threading.Thread(target=check_grass_touching_bans, daemon=True).start()
-
-class User(flask_login.UserMixin):
-    pass
-
-@login_manager.user_loader
-def user_loader(user_id):
-    user = User()
-    user.id = user_id
-    return user
-
-@login_manager.unauthorized_handler
-def unauthorized_handler():
-    return redirect(url_for("login"))
-
-@app.before_request
-def check_banned():
-    if not hasattr(flask_login.current_user, "id"):
-        return
-    
-    username = flask_login.current_user.id
-    
-    cur = get_db().cursor()
-    cur.execute("SELECT banned FROM Users WHERE username = ?", (username,))
-    row = cur.fetchone()
-    cur.close()
-
-    if row is None or row[0]:
-        flash("Imagine forgetting to touch grass so you get banned from my app. Such a discord moderator you are. You have no life. Just go outside.", "error")
-        flask_login.logout_user()
-        return redirect("/")
 
 def resize_image_file(path, max_side=256, fmt="JPEG"):
     img = Image.open(path)
@@ -220,6 +237,60 @@ def leaderboard():
 
     return render_template("leaderboard.jinja2", users=users, current_username=username)
 
+@app.route("/achievements")
+@flask_login.login_required
+def achievements():
+    username = flask_login.current_user.id
+
+    cur = get_db().cursor()
+    cur.execute("SELECT grass_touching_count FROM Users WHERE username = ?", (username,))
+
+    row = cur.fetchone()
+
+    cur.close()
+
+    if not row:
+        return Response("DB is not healthy.")
+
+    return render_template("achievements.jinja2", achievements=ACHIEVEMENTS, grass_touching_count=row[0])
+
+@app.route("/profile")
+@flask_login.login_required
+def profile():
+    username = flask_login.current_user.id
+    
+    cur = get_db().cursor()
+
+    cur.execute("SELECT grass_touching_count, last_grass_touch_time FROM Users WHERE username = ?", (username,))
+
+    row = cur.fetchone()
+
+    cur.close()
+
+    if not row:
+        return Response("DB is not healthy.")
+    
+    grass_touching_count, last_grass_touch_time = row
+
+    return render_template("profile.jinja2", username=username, grass_touching_count=grass_touching_count, last_grass_touch_time=last_grass_touch_time, your_account=True)
+
+@app.route("/profile/<username>")
+def public_profile(username):    
+    cur = get_db().cursor()
+
+    cur.execute("SELECT grass_touching_count, last_grass_touch_time FROM Users WHERE username = ?", (username,))
+
+    row = cur.fetchone()
+
+    cur.close()
+
+    if not row:
+        return Response("DB is not healthy.")
+    
+    grass_touching_count, last_grass_touch_time = row
+
+    return render_template("profile.jinja2", username=username, grass_touching_count=grass_touching_count, last_grass_touch_time=last_grass_touch_time, your_account=False)
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
@@ -280,7 +351,75 @@ def register():
         cur.close()
 
         return redirect(url_for("login"))
+
+@app.route("/change_username", methods=["POST"])
+@flask_login.login_required
+def change_username():
+    username = flask_login.current_user.id
+    new_username = request.form["new_username"]
+
+    cur = get_db().cursor()
+
+    cur.execute("UPDATE Users SET username = ? WHERE username = ?", (new_username, username))
+    cur.execute("UPDATE Images SET username = ? WHERE username = ?", (new_username, username))
+
+    get_db().commit()
+    cur.close()
+
+    flask_login.logout_user()
+    return redirect(url_for("login"))
+
+@app.route("/change_password", methods=["POST"])
+@flask_login.login_required
+def change_password():
+    username = flask_login.current_user.id
+    new_password, confirm_password = request.form["new_password"], request.form["confirm_password"]
+
+    if not secrets.compare_digest(new_password, confirm_password):
+        return Response("Passwords do not match.")
+
+    cur = get_db().cursor()
+
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(new_password.encode(), salt)
+
+    cur.execute("UPDATE Users SET password = ?, password_salt = ? WHERE username = ?", (hashed_password, salt, username))
     
+    get_db().commit()
+    cur.close()
+
+    flask_login.logout_user()
+    return redirect(url_for("login"))
+
+@app.route("/delete_data", methods=["POST"])
+@flask_login.login_required
+def delete_data():
+    username = flask_login.current_user.id
+
+    cur = get_db().cursor()
+
+    cur.execute("DELETE FROM Users WHERE username = ?", (username,))
+
+    get_db().commit()
+    cur.close()
+
+    flask_login.logout_user()
+    return redirect(url_for("login"))
+
+@app.route("/reset_data", methods=["POST"])
+@flask_login.login_required
+def reset_data():
+    username = flask_login.current_user.id
+
+    cur = get_db().cursor()
+
+    cur.execute("UPDATE Users SET last_grass_touch_time = ?, grass_touching_count = ? WHERE username = ?", (time.time(), 1, username))
+
+    get_db().commit()
+    cur.close()
+
+    return redirect("/")
+
 @app.route("/uploads/<filename>")
 def uploads(filename):
     return send_from_directory("uploads", filename)

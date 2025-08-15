@@ -1,0 +1,124 @@
+{% extends "base.jinja2" %}
+{% block title %}Grass Touching Profile{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<div class="container-fluid d-flex justify-content-center">
+    <a class="navbar-brand" href="/">Grass Touching Captcha</a>
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="/info">Information</a></li>
+        <li class="nav-item"><a class="nav-link" href="/leaderboard">Leaderboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="/submit_grasstouching">Submit Grass Touching</a></li>
+        <li class="nav-item"><a class="nav-link" href="/achievements">Achievements</a></li>
+        <li class="nav-item"><a class="nav-link active" aria-current="page" href="/profile">Profile</a></li>
+        <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+    </ul>
+    </div>
+</div>
+</nav>
+
+<div class="container my-4">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h2 class="card-title">Profile Overview{% if not your_account%} of {{ username}} {% endif %}</h2>
+            
+            {% if your_account %}
+            <p class="mb-1"><strong>Logged in as:</strong> {{ username }}</p>
+            {% endif %}
+            
+            <p class="mb-1">Grass touches: <strong>{{ grass_touching_count }}</strong></p>
+            <p class="mb-3">Last touch: <strong>{{ (time.time() - last_grass_touch_time) | timeago }}</strong></p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h2 class="card-title">Achievements{% if not your_account%} of {{ username}} {% endif %}</h2>
+
+            <div class="row g-4">
+                {% for achievement in achievements %}
+                {% set unlocked = grass_touching_count >= achievement[0] %}
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <div class="card h-100 {% if unlocked %}border-success shadow{% else %}border-secondary text-muted{% endif %}">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                        {% if unlocked %}
+                            ✅ {{ achievement[1] }}
+                        {% else %}
+                            🔒 {{ achievement[1] }}
+                        {% endif %}
+                        </h5>
+                        <h6 class="card-subtitle mb-2 {% if unlocked %}text-success{% else %}text-secondary{% endif %}">
+                        You have to go outside {{ achievement[0] }} times to get this!
+                        </h6>
+                        <p class="card-text">{{ achievement[2] }}</p>
+                    </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+{% if your_account %}
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <h4>Change Username</h4>
+            <form method="POST" action="/change_username">
+                <div class="mb-3">
+                    <label for="newUsername" class="form-label">New Username</label>
+                    <input type="text" class="form-control" id="newUsername" name="new_username" placeholder="Enter new username" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Username</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <h4>Change Password</h4>
+            <form method="POST" action="/change_password">
+                <div class="mb-3">
+                    <label for="currentPassword" class="form-label">Current Password</label>
+                    <input type="password" class="form-control" id="currentPassword" name="current_password" placeholder="Enter current password" required>
+                </div>
+                <div class="mb-3">
+                    <label for="newPassword" class="form-label">New Password</label>
+                    <input type="password" class="form-control" id="newPassword" name="new_password" placeholder="Enter new password" required>
+                </div>
+                <div class="mb-3">
+                    <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                    <input type="password" class="form-control" id="confirmPassword" name="confirm_password" placeholder="Re-enter new password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Password</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-4 border-danger">
+        <div class="card-body">
+            <h4 class="text-danger">Danger Zone</h4>
+            <p class="text-muted">These actions cannot be undone!</p>
+            <form method="POST" action="/delete_account" class="d-inline">
+                <button type="submit" class="btn btn-danger me-2" onclick="return confirm('Are you sure you want to delete your account?');">
+                    Delete Account
+                </button>
+            </form>
+            <form method="POST" action="/reset_data" class="d-inline">
+                <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to reset all your data?');">
+                    Reset All Data
+                </button>
+            </form>
+        </div>
+    </div>
+{% endif %}
+</div>
+{% endblock %}
