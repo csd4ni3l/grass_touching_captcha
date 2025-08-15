@@ -373,17 +373,29 @@ def change_username():
 @flask_login.login_required
 def change_password():
     username = flask_login.current_user.id
-    new_password, confirm_password = request.form["new_password"], request.form["confirm_password"]
+    current_password, new_password, confirm_password = request.form["current_password"], request.form["new_password"], request.form["confirm_password"]
 
     if not secrets.compare_digest(new_password, confirm_password):
-        return Response("Passwords do not match.")
-
+        return Response("Passwords do not match.", 400)
+    
     cur = get_db().cursor()
 
-    salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(new_password.encode(), salt)
+    cur.execute("SELECT password, password_salt FROM Users WHERE username = ?", (username,))
 
-    cur.execute("UPDATE Users SET password = ?, password_salt = ? WHERE username = ?", (hashed_password, salt, username))
+    row = cur.fetchone()
+
+    if not row:
+        return Response("DB is not healthy", 500)
+
+    hashed_password, salt = row
+
+    if not secrets.compare_digest(bcrypt.hashpw(current_password.encode(), salt.encode()), hashed_password.encode()):
+        return Response("Unathorized.", 401)
+
+    new_salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(new_password.encode(), new_salt)
+
+    cur.execute("UPDATE Users SET password = ?, password_salt = ? WHERE username = ?", (hashed_password, new_salt, username))
     
     get_db().commit()
     cur.close()
