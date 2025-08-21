@@ -14,7 +14,7 @@ def get_embedding(input: list):
     headers["Authorization"] = f"Bearer {os.environ['JINA_TOKEN']}"
 
     data = {
-        "model": "jina-embeddings-v4",
+        "model": "jina-embeddings-v3",
         "task": "text-matching",
         "input": input
     }
