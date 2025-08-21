@@ -68,8 +68,7 @@ function upload_success(image_url) {
     document.getElementById("submit").type = "submit"
     document.getElementById("error-label").textContent = ""
     document.getElementById("error-label").hidden = true;
-
-    document.getElementById("grass-touching-form").innerHTML += `<img class="preview-img" src="${image_url}">`;
+    document.getElementById("grass-touching-form").hidden = true;
 }
 
 function upload_error(error_message) {
