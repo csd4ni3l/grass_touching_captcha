@@ -44,7 +44,7 @@
             <div class="form-group" style="margin-top: 4%;">
                 <div id="grass-touching-form" class="mb-3">
                     <label class="form-label" for="file_input">Grass touching proof</label>
-                    <div id="challengehelp">To complete this challenge, you need to submit a picture of you touching grass next to a paper containing the following text: Loading...</div>
+                    <div id="challengehelp">To complete this challenge, you need to submit a picture of you touching grass next to a paper containing the following text(use black markers, strictly uppercase and not handwritten letters): Loading...</div>
                     <input accept="image/png, image/jpeg" name="file" type="file" class="form-control" id="file_input">
                     <div hidden id="error-label" class="text-danger"></div>
                 </div>
@@ -153,7 +153,7 @@ function get_challenge() {
     }).then(response => {
         response.text().then(challenge_text => {
             if (challenge_text) {
-                document.getElementById("challengehelp").innerHTML = `To complete this challenge, you need to submit a picture of you touching grass next to a paper containing the following text: ${challenge_text}`
+                document.getElementById("challengehelp").innerHTML = `To complete this challenge, you need to submit a picture of you touching grass next to a paper containing the following text(use black markers, strictly uppercase and not handwritten letters): ${challenge_text}`
             }
         })
 

@@ -9,8 +9,8 @@ UPLOAD_DIR = "uploads"
 MINIMUM_COSINE_SIMILARITY = 0.4
 WORD_TO_COMPARE = "hand touching grass"
 DATABASE_FILE = "data.db"
-MINIMUM_OCR_SIMILARITY = 0.7
-OCR_CHALLENGE_LENGTH = 1
+MINIMUM_OCR_SIMILARITY = 0.55
+OCR_CHALLENGE_LENGTH = 4
 
 ACHIEVEMENTS = [
     [1, "I went outside!", "Brag to your friends with this one! You went outside the first time in your life. Continue on your journey."],

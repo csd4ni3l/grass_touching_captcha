@@ -6,7 +6,7 @@ from PIL import Image
 from jina import get_grass_touching_similarity
 from ocr_check import generate_challenge, check_text_similarity
 
-import os, flask_login, uuid, base64, sqlite3, bcrypt, secrets, hashlib, time, threading
+import os, flask_login, uuid, base64, sqlite3, bcrypt, secrets, hashlib, time, threading, html
 
 if os.path.exists(".env"):
     load_dotenv(".env")
@@ -328,6 +328,11 @@ def register():
     elif request.method == "POST":
         username, password = request.form.get("username"), request.form.get("password")
         
+        if username != html.escape(username, quote=True):
+            return "No XSS please"
+
+        username = html.escape(username, quote=True)
+
         if not challenges.get(username):
             return Response("Start and finish a challenge before registering.", 401)
         
@@ -356,7 +361,11 @@ def register():
 @flask_login.login_required
 def change_username():
     username = flask_login.current_user.id
-    new_username = request.form["new_username"]
+    
+    if request.form["new_username"] != html.escape(request.form["new_username"], quote=True):
+        return "No XSS please"
+
+    new_username = html.escape(request.form["new_username"], quote=True)
 
     cur = get_db().cursor()
 

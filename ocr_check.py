@@ -1,8 +1,6 @@
 import easyocr, difflib, random, string
 from constants import OCR_CHALLENGE_LENGTH
-from english_words import get_english_words_set
 
-words = list(get_english_words_set(['gcide'], lower=True, alpha=True))
 reader = easyocr.Reader(['en'])
 
 def check_text_similarity(image_path, text):
@@ -12,4 +10,4 @@ def check_text_similarity(image_path, text):
     return image_text, similarity
 
 def generate_challenge(username):
-    return f"{username} {' '.join([random.choice(words) for _ in range(OCR_CHALLENGE_LENGTH)])}"
+    return f"{username} {''.join([str(random.randint(0, 10)) for _ in range(OCR_CHALLENGE_LENGTH)])}"
