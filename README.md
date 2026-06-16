@@ -9,3 +9,7 @@ uv pip install easyocr --extra-index-url https://download.pytorch.org/whl/cpu
 ```
 Dont add the flag if you have a dedicated GPU on the computer where you host the project.
 Run the command without uv if you use pip.
+
+---
+**Migration Notice:** This repository has been moved to https://git.csd4ni3l.hu/csd4ni3l/grass_touching_captcha
+---
