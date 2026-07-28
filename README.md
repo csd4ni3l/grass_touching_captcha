@@ -9,3 +9,8 @@ uv pip install easyocr --extra-index-url https://download.pytorch.org/whl/cpu
 ```
 Dont add the flag if you have a dedicated GPU on the computer where you host the project.
 Run the command without uv if you use pip.
+## Mirrors
+
+[![Forgejo](https://img.shields.io/badge/Forgejo-git.csd4ni3l.hu-1e90ff)](https://git.csd4ni3l.hu/csd4ni3l/grass_touching_captcha)
+[![GitHub](https://img.shields.io/badge/GitHub-github.com-181717)](https://github.com/csd4ni3l/grass_touching_captcha)
+[![Codeberg](https://img.shields.io/badge/Codeberg-codeberg.org-2185D0)](https://codeberg.org/csd4ni3l/grass_touching_captcha)
